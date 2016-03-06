@@ -1,0 +1,43 @@
+{
+  "name": "nogle-rebuild",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Ron Yu"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/Ron-Yu/nogle-rebuild",
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "underscore": "~1.8.3",
+    "bootstrap-material-design": "~0.5.9"
+  },
+  "overrides": {
+    "bootstrap": {
+      "main": []
+    },
+    "bootstrap-material-design": {
+      "main": [
+        "dist/js/material.js",
+        "dist/js/ripples.js"
+      ]
+    },
+    "bootstrap-sass": {
+      "main": [
+        "assets/javascripts/bootstrap.js"
+      ]
+    }
+  }
+}
