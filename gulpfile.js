@@ -72,6 +72,10 @@ var browserSync = require('browser-sync').create();
 //	wiredep
 var wiredep = require('wiredep').stream;
 //
+//  image compression
+var pngquant = require('imagemin-pngquant');
+//
+//
 //  -------------------------------------
 
 
@@ -113,7 +117,7 @@ gulp.task('list', function() {
 //  Task: build
 //  -------------------------------------
 //
-gulp.task('build', ['bundle:js', 'compile:css', 'compile:html']);
+gulp.task('build', ['bundle:js', 'compile:css', 'compile:html', 'compress:image', 'copy:font', 'copy:js']);
 //
 //  -------------------------------------
 
@@ -172,6 +176,26 @@ gulp.task('bundle:js',['lint:js'] ,function(){
 
 
 //  -------------------------------------
+//  Task: copy:js
+//  -------------------------------------
+//
+gulp.task('copy:js', function () {
+  log('Coping js to build directory');
+  return gulp
+    .src(config.src.mainjs, { base: './src' })
+    .pipe($.plumber())
+    .pipe($.using({
+      prefix: 'copy:font',
+      color: 'yellow'
+    }))
+    .pipe(gulp.dest(config.build.dir))
+		.pipe(browserSync.stream());
+});
+//
+//  -------------------------------------
+
+
+//  -------------------------------------
 //  Task: watch:js
 //  -------------------------------------
 //
@@ -225,7 +249,7 @@ gulp.task('watch:css', ['compile:css'], browserSync.reload);
 //  Task: compile:html
 //  -------------------------------------
 //
-gulp.task('compile:html', ['wiredep'], function () {
+gulp.task('compile:html', ['wiredep', 'injection'], function () {
 	log('Compiling Jade --> HTML');
 	return gulp
 		.src(config.src.template)
@@ -255,7 +279,7 @@ gulp.task('wiredep', function () {
   return gulp
     .src(config.src.dir + 'index.jade')
     .pipe(wiredep({
-      ignorePath: "../build"
+      ignorePath: '../build'
     }))
     .pipe(gulp.dest(config.src.dir))
 });
@@ -275,6 +299,77 @@ gulp.task('watch:html', ['compile:html'], browserSync.reload);
 
 
 //  -------------------------------------
+//  Task: compress:image
+//  -------------------------------------
+//
+gulp.task('compress:image', function () {
+  log('Optimize images');
+  return gulp
+    .src(config.src.assets.img, { base: './src' })
+    .pipe($.using({
+      prefix: 'compress:image',
+      color: 'yellow'
+    }))
+		.pipe($.imagemin({
+			progressive: true,
+      interlaced: true,
+      multipass: true,
+			svgoPlugins: [{removeViewBox: false}],
+			use: [pngquant()]
+		}))
+		.pipe(gulp.dest(config.build.dir))
+		.pipe(browserSync.stream());
+});
+//
+//  -------------------------------------
+
+
+
+//  -------------------------------------
+//  Task: copy:font
+//  -------------------------------------
+//
+gulp.task('copy:font', function () {
+  log('Coping fonts to build directory');
+  return gulp
+    .src(config.src.assets.font, { base: './src' })
+    .pipe($.plumber())
+    .pipe($.using({
+      prefix: 'copy:font',
+      color: 'yellow'
+    }))
+    .pipe(gulp.dest(config.build.dir))
+});
+//
+//  -------------------------------------
+
+
+
+//  -------------------------------------
+//  Task: injection
+//  -------------------------------------
+//
+gulp.task('injection', function () {
+  log('Injection');
+	var target = gulp.src(config.src.dir + 'index.jade');
+	var sources = gulp.src(['./src/js/main.js'], {read: false});
+  return target
+    .pipe($.plumber())
+    .pipe($.using({
+      prefix: 'injection',
+      color: 'yellow'
+    }))
+		.pipe($.inject(sources, {
+			relative: true
+		}))
+    .pipe(gulp.dest(config.src.dir));
+});
+//
+//  -------------------------------------
+
+
+
+//  -------------------------------------
 //  Task: serve
 //  -------------------------------------
 //
@@ -288,9 +383,11 @@ gulp.task('serve',['build'] ,function() {
         }
     });
 
-    gulp.watch(config.src.js, ['watch:js']);
+    gulp.watch([config.src.js, '!' + config.src.mainjs], ['watch:js']);
 		gulp.watch(config.src.sass, ['watch:css']);
 		gulp.watch(config.src.template, ['watch:html']);
+		gulp.watch(config.src.mainjs, ['copy:js']);
+
 });
 //  -------------------------------------
 

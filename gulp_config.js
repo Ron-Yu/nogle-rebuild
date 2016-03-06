@@ -1,7 +1,7 @@
 var gulpConfig = function() {
   var src = './src/';
   var build = './build/';
-  var assets = build + 'assets';
+  var assets = src + 'assets/';
 
   var config = {
     /**
@@ -14,33 +14,28 @@ var gulpConfig = function() {
         js: src + 'js/**/*.js',
         template: src + '**/*.jade',
         sass: src + 'sass/application.sass',
+        mainjs: src + 'js/main.js',
 
         // bundle js file
-        collectionJs: src + 'js/collection.js',
+        collectionJs: src + 'js/collection.react.js',
 
         //third party library or framework for sass
-        vendor: src + 'sass/vendor'
+        vendor: src + 'sass/vendor',
+
+        assets : {
+          font: assets + 'font/**/*.*',
+          img: assets + 'img/**/*.*'
+        }
     },
     /**
     *   build folders
     */
     build: {
-        // customed files
-        js: build + 'js/',
-        css:  build + 'css/',
-        html: build,
-
-        //third party
-        assets : {
-            //library
-            lib: assets + 'lib',
-            // font
-            font: assets + 'font',
-            //iamges
-            img: assets + 'img',
-            //video
-            video: assets + 'video'
-        }
+      dir: build,
+      // customed files
+      js: build + 'js/',
+      css:  build + 'css/',
+      html: build
     }// end build
   };// end config
 
